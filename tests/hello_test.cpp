@@ -217,19 +217,19 @@ public:
     }
 };
 
-//TEST(MyDBTest, LoginTest) {
-//    // arrange
-//    MockDB mdb;
-//    MyDatabase db(mdb);
-//
-//    // mock
-//    EXPECT_CALL(mdb, login("Terminator", "I'm Back"))
-//            .Times(1)
-//            .WillOnce(Return(true));
-//    // act
-//    int retValue = db.Init("Terminator", "I'm Back");
-//    // assert
-//    EXPECT_EQ(retValue, 1);
-//}
+TEST(MyDBTest, LoginTest) {
+    // arrange
+    MockDB mdb;
+    MyDatabase db(mdb);
+
+    // mock
+    EXPECT_CALL(mdb, login("Terminator", "I'm Back"))
+            .Times(1)
+            .WillOnce(Return(true));
+    // act
+    int retValue = db.Init("Terminator", "I'm Back");
+    // assert
+    EXPECT_EQ(retValue, 1);
+}
 
 
