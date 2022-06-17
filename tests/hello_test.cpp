@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-
+#include <vector>
 struct BankAccount {
     int balance = 0;
 
@@ -57,11 +57,13 @@ TEST_P(WithDrawAccountTest, FinalBalance) {
     EXPECT_EQ(as.success, success);
 }
 
-INSTANTIATE_TEST_CASE_P(Default, WithDrawAccountTest,
+INSTANTIATE_TEST_CASE_P
+
+(Default, WithDrawAccountTest,
  testing::Values(
          account_state{100, 50, 50, true},
          account_state{100, 200, 100, false}
-         ));
+ ));
 
 
 TEST_F(BankAccountTest, BankAccountTestStartsByTEST_F) {
@@ -85,3 +87,84 @@ TEST(HelloTest, BasicAssertions) {
 // Expect equality.
     EXPECT_EQ(7 * 6, 42);
 }
+
+class MyClass {
+private:
+    int baseValue;
+public:
+    MyClass(int baseValue) : baseValue(baseValue) {}
+
+    void Increment(int byValue) {
+        baseValue += byValue;
+    }
+
+    int getValue() {
+        return baseValue;
+    }
+};
+
+struct MyClassTest : public testing::Test {
+    MyClass *mc;
+
+    void SetUp() override {
+        mc = new MyClass(100);
+    }
+
+    void TearDown() override {
+        delete mc;
+    }
+};
+
+
+class Stack {
+    std::vector<int> vstack = {};
+public:
+    void push(int value) {
+        vstack.push_back(value);
+    }
+
+    int pop() {
+        if (vstack.size() > 0) {
+            int value = vstack.back();
+            vstack.pop_back();
+            return value;
+        } else {
+            return -1;
+        }
+    }
+
+    int size() {
+        return vstack.size();
+    }
+};
+
+struct stackTest : public testing::Test {
+    Stack s1;
+    void SetUp() override {
+        int value[] = {1,2,3,4,5,6,7,8,9};
+        for (auto &val : value) {
+            s1.push(val);
+        }
+    }
+
+    void TearDown() override {
+
+    }
+};
+
+TEST_F(stackTest, PopTest) {
+    int last = 9;
+    while (last != 1) {
+        ASSERT_EQ(s1.pop(), last--);
+    }
+}
+
+
+// test fixture
+TEST_F(MyClassTest, Increment_by_5) {
+    // act
+    mc->Increment(5);
+    // assert
+    ASSERT_EQ(mc->getValue(), 105);
+}
+
