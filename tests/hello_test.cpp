@@ -2,8 +2,17 @@
 // Created by been on 2022/6/16.
 //
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <vector>
+#include <string>
+
+using namespace std;
+using ::testing::AtLeast;
+using ::testing::Return;
+using ::testing::_;
+
+
 struct BankAccount {
     int balance = 0;
 
@@ -50,20 +59,20 @@ struct WithDrawAccountTest : BankAccountTest, testing::WithParamInterface<accoun
 
 };
 
+INSTANTIATE_TEST_CASE_P
+(Default, WithDrawAccountTest,
+ testing::Values(
+         account_state{100, 50, 50, true},
+         account_state{100, 200, 100, false}
+ ));
+
+
 TEST_P(WithDrawAccountTest, FinalBalance) {
     auto as = GetParam();
     auto success = account->withdraw(as.withdraw_amount);
     EXPECT_EQ(as.final_balance, account->balance);
     EXPECT_EQ(as.success, success);
 }
-
-INSTANTIATE_TEST_CASE_P
-
-(Default, WithDrawAccountTest,
- testing::Values(
-         account_state{100, 50, 50, true},
-         account_state{100, 200, 100, false}
- ));
 
 
 TEST_F(BankAccountTest, BankAccountTestStartsByTEST_F) {
@@ -140,9 +149,10 @@ public:
 
 struct stackTest : public testing::Test {
     Stack s1;
+
     void SetUp() override {
-        int value[] = {1,2,3,4,5,6,7,8,9};
-        for (auto &val : value) {
+        int value[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        for (auto &val: value) {
             s1.push(val);
         }
     }
@@ -167,4 +177,59 @@ TEST_F(MyClassTest, Increment_by_5) {
     // assert
     ASSERT_EQ(mc->getValue(), 105);
 }
+
+
+class DatabaseConnect {
+public:
+    virtual bool login(std::string username, std::string password) {
+        return true;
+    }
+
+    virtual bool logout(std::string username) {
+        return true;
+    }
+
+    virtual int fetchRecord() {
+        return -1;
+    }
+};
+
+class MockDB : public DatabaseConnect {
+public:
+    MOCK_METHOD0(fetchRecord, int());
+    MOCK_METHOD1(logout, bool (std::string username));
+    MOCK_METHOD2(login, bool (std::string username, std::string password));
+};
+
+class MyDatabase {
+    DatabaseConnect &connect;
+public:
+    MyDatabase(DatabaseConnect &connect) : connect(connect) {}
+
+    int Init(std::string username, std::string password) {
+        if (connect.login(username, password) != true) {
+            std::cout << "DB Failure" << std::endl;
+            return -1;
+        } else {
+            std::cout << "DB success" << std::endl;
+            return 1;
+        }
+    }
+};
+
+//TEST(MyDBTest, LoginTest) {
+//    // arrange
+//    MockDB mdb;
+//    MyDatabase db(mdb);
+//
+//    // mock
+//    EXPECT_CALL(mdb, login("Terminator", "I'm Back"))
+//            .Times(1)
+//            .WillOnce(Return(true));
+//    // act
+//    int retValue = db.Init("Terminator", "I'm Back");
+//    // assert
+//    EXPECT_EQ(retValue, 1);
+//}
+
 
